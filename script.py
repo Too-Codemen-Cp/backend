@@ -4,7 +4,7 @@ from ai.model import go_to_ai
 from data import data_lang
 
 def make_csv():
-    static = os.listdir("static")
+    static = os.listdir("images")
     columns = ['object_id', 'object_name', 'group']
     data = []
     for name in static:
