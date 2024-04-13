@@ -8,7 +8,7 @@ load_dotenv()
 api = os.getenv("API", None)
 root_dir = os.path.dirname(os.path.abspath(__file__)).replace("/ai", "")
 folder = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "..", "images",
+    os.path.dirname(os.path.abspath(__file__)), "..", "static",
 )
 
 def go_to_ai(image) -> Dict:
