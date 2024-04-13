@@ -1,4 +1,5 @@
 from typing import Dict
+from ai.model import go_to_ai
 
 def recognize_static(file) -> Dict:
-    return dict()
+    return go_to_ai(file)
