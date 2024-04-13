@@ -6,6 +6,7 @@ from flask import (
     jsonify,
     send_from_directory,
 )
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 from .helpers import recognize_static
@@ -17,6 +18,8 @@ UPLOAD_FOLDER = os.path.join(
 app = Flask(
         __name__, static_folder=UPLOAD_FOLDER
 )
+
+CORS(app)
 
 app.config["TRAP_HTTP_EXCEPTIONS"] = True
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER

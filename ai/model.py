@@ -13,8 +13,8 @@ folder = os.path.join(
 
 def go_to_ai(image) -> Dict:
     rf = Roboflow(api_key=api)
-    project = rf.workspace().project("")
-    model = project.version(3).model
+    project = rf.workspace().project("museum-objects")
+    model = project.version(1).model
     model.predict(f'{folder}/{image}', confidence=40, overlap=30).save(f'{folder}/new_{image}')
     info = model.predict(f'{folder}/{image}', confidence=40, overlap=30).json()
     os.remove(f'{folder}/{image}')
