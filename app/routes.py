@@ -1,49 +1,40 @@
 import os
-from flask import (
-    Flask,
-    Response,
-    request,
-    jsonify,
-    send_from_directory,
-)
-from flask_cors import CORS
+from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi.responses import FileResponse, JSONResponse
+from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 from werkzeug.utils import secure_filename
 
 from .helpers import recognize_static
 
-root_dir = os.path.dirname(os.path.abspath(__file__)).replace("/app", "")
-UPLOAD_FOLDER = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "..", "static",
-)
-app = Flask(
-        __name__, static_folder=UPLOAD_FOLDER
-)
+router = APIRouter()
 
-CORS(app)
+UPLOAD_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static"))
 
-app.config["TRAP_HTTP_EXCEPTIONS"] = True
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+@router.get("/{file_path:path}", response_class=FileResponse)
+async def get_static_file(file_path: str) -> FileResponse:
+    file_location = os.path.join(UPLOAD_FOLDER, file_path)
+    if not os.path.isfile(file_location):
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(file_location)
 
-@app.route("/<path:path>" , methods=["GET"])
-def send_static(path) -> Response:
-    return send_from_directory(UPLOAD_FOLDER, path)
-
-@app.route("/file", methods=["POST"])
-def upload_file() -> Response | tuple[Response, int]:
+@router.post("/file")
+async def upload_file(file: UploadFile = File(...)) -> JSONResponse:
     try:
-        file = request.files["file"]
-        if file.filename:
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            return jsonify({"result": recognize_static(filename)}, 200)
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+
+        with open(file_path, "wb") as buffer:
+            buffer.write(await file.read())
+
+        result = recognize_static(filename)
+        return JSONResponse(content={"result": result}, status_code=200)
+
     except Exception as ex:
-        return (
-            jsonify(
-                {
-                    "result": "false",
-                    "error_type": str(type(ex)),
-                    "error_message": str(ex),
-                }
-            ),
-            500,
+        return JSONResponse(
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "result": "false",
+                "error_type": str(type(ex)),
+                "error_message": str(ex),
+            },
         )
