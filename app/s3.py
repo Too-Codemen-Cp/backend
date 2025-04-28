@@ -34,3 +34,16 @@ class S3Client:
                     Key=object_name,
                     Body=file
                 )
+
+# async def main():
+#     s3_client = S3Client(
+#         access_key=os.getenv("access_key"),
+#         secret_key=os.getenv("secret_key"),
+#         endpoint_url=os.getenv("endpoint_url"),
+#         bucket_name="slava1"
+#     )
+#
+#     await s3_client.upload_file("vilka.jpeg", "vilka.jpeg")
+#
+# if __name__ == "__main__":
+#     asyncio.run(main())
